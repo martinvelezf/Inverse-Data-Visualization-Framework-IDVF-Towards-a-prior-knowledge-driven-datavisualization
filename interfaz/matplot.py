@@ -32,6 +32,7 @@ class MvPoints():
             self.labels2.append(self.ax[1].annotate(i, (self.x[i], self.y[i])))
         self.ax[0].set_xlim((-1.3,1.3))
         self.ax[0].set_ylim((-1.3,1.3))    
+        
         self.rs = RectangleSelector(self.ax[0], self.line_select_callback,
                        drawtype='box', useblit=False, button=[1], 
                        minspanx=5, minspany=5, spancoords='pixels', 
@@ -116,6 +117,8 @@ class MvPoints():
             self.scat2.remove()
         except:
             print("First")
+        self.ax[0].set_title("Result of DR with Mixture Kernel")
+        self.ax[1].set_title("Expected DR")
         self.scat2=self.ax[1].scatter(self.x,self.y,s=self.area, c=self.colors,alpha=self.alpha)
         self.ax[1].set_xlim((-1.3,1.3))
         self.ax[1].set_ylim((-1.3,1.3))

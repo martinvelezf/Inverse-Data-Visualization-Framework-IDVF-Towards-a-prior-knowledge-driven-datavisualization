@@ -13,17 +13,17 @@ from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.preprocessing import normalize
 #Insert own modules
 import sys
-sys.path.insert(1,"/media/martin/D:/Tesis/codigo/")
+sys.path.insert(1,"../")
 
 #Kernel from other linear methods
 from Kernels.LLE import LocallyLinearEmbedding
 from Kernels.laplacian import SpectralEmbedding
 from Kernels.Isomap import Isomap
-
+from Kernels.CMDS import KCMDS
 class KernelPCA(TransformerMixin, BaseEstimator):
     def __init__(self, degree=3, coef0=1, kernel_params=None,
-                 alpha=1.0, eigen_solver='auto', neigh=1,
-                 tol=0, max_iter=None, remove_zero_eig=False, n_components=2,
+                 alpha=1.0, eigen_solver='auto', neigh=8,
+                 tol=0, max_iter=None, remove_zero_eig=True, n_components=2,
                  random_state=None, n_jobs=None,coeficient=None,nkernel=10):
         self.kernel_params = kernel_params
         self.gamma = 0.0001
@@ -59,6 +59,7 @@ class KernelPCA(TransformerMixin, BaseEstimator):
             self.neigh=len(X)-3
         tkernel=len(kern)+3*self.neigh-1
         K=[]
+        K.append((KCMDS(X)))
         for i in kern:
             if i=='rbf':
                 for j in range(0,self.nkernel-tkernel):
@@ -87,28 +88,9 @@ class KernelPCA(TransformerMixin, BaseEstimator):
         return pairwise_kernels(X, None, metric=kernel,filter_params=True, n_jobs=self.n_jobs,**params)
     def Solve(self, K):
         
-        # SELECT THE BEST METHOD TO CALCULATE THE EIGENVALUES
-        if self.eigen_solver == 'auto':
-            if K.shape[0] > 200 and self.n_components < 10:
-                eigen_solver = 'arpack'
-            else:
-                eigen_solver = 'dense'
-        else:
-            eigen_solver = self.eigen_solver
-
         #GET EIGENVALUES AND EIGENVECTOR THE CENTER KERNEL
-        if eigen_solver == 'dense':
-            self.lambdas_, self.vectors_ = linalg.eigh(K, eigvals=(K.shape[0] - self.n_components, K.shape[0] - 1))
-        elif eigen_solver == 'arpack':
-            random_state = check_random_state(self.random_state)
-            # initialize with [-1,1] as in ARPACK
-            v0 = random_state.uniform(-1, 1, K.shape[0])
-            self.lambdas_, self.vectors_ = eigsh(K, self.n_components,
-                                                which="LA",
-                                                tol=self.tol,
-                                                maxiter=self.max_iter,
-                                                v0=v0)
-
+        self.lambdas_, self.vectors_ = linalg.eigh(K, eigvals=(K.shape[0] - self.n_components, K.shape[0] - 1))
+        
         # make sure that the eigenvalues are ok and fix numerical issues
         self.lambdas_ = _check_psd_eigenvalues(self.lambdas_,
                                                enable_warnings=False)
