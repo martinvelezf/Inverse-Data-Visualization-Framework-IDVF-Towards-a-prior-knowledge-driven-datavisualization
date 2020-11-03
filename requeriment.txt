@@ -1,0 +1,6 @@
+# Requeriments
+numpy
+scipy 
+sklearn
+matplotlib
+panda
