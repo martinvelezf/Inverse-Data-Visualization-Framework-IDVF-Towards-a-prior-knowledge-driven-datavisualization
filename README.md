@@ -3,6 +3,8 @@
 Start
 
 pip3 install requeriment.txt
+
+
 python3 test.py
 
 
