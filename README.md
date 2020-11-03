@@ -2,7 +2,7 @@
 
 Start
 
-pip3 install requeriment.txt
+pip3 install -r requeriment.txt
 
 
 python3 test.py
